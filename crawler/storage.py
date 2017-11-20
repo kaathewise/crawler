@@ -26,10 +26,10 @@ class RedisStorage:
         if not url:
             yield gen.sleep(0.5)
             url = yield self.client.call('SPOP', 'fetch_queue')
-        raise tornado.gen.Return(url)
+        raise gen.Return(url)
 
     @gen.coroutine
     def get_all_page_info(self):
         keys = yield self.client.call('KEYS', 'url:*')
         infos = yield self.client.call('MGET', *keys)
-        raise tornado.gen.Return([json.loads(info) for info in infos])
+        raise gen.Return([json.loads(info) for info in infos])

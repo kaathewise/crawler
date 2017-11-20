@@ -1,3 +1,4 @@
+import argparse
 import json
 import re
 
@@ -62,11 +63,18 @@ class Crawler(object):
             'img': local_img,
             'js': local_js}
 
+parser = argparse.ArgumentParser(description='Simple web crawler')
+parser.add_argument('--url', dest='url', required=True, help='website to crawl')
+parser.add_argument('--redis', dest='redis', default='localhost:6379', help='redis instance')
+parser.add_argument('--workers', dest='workers', type=int, default=10, help='number of workers')
+
 @gen.coroutine
 def main():
-    storage = RedisStorage('localhost', 6379)
-    yield storage.url_discovered('https://fulc.ru')
-    yield gen.multi([Crawler(storage).run() for i in range(10)])
+    args = parser.parse_args()
+    r_host, r_port = args.redis.split(':')
+    storage = RedisStorage(r_host, int(r_port))
+    yield storage.url_discovered(args.url)
+    yield gen.multi([Crawler(storage).run() for i in range(args.workers)])
     print 'All website crawled.'
     page_infos = yield storage.get_all_page_info()
     print '%s pages found:' % len(page_infos)
