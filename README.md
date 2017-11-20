@@ -9,7 +9,7 @@ Reason: simplicity for prototyping.
 
 Steps to run the crawler:
 1. Run redis: `redis-server redis.conf`
-2. Run app: `python crawler/crawler.py --url tomblomfield.com`
+2. Run app: `python crawler/crawler.py --url http://tomblomfield.com`
 
 ## Scalability
 If run with `gunicorn`, the number of processes should be ~ 2 times the number

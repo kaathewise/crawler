@@ -24,7 +24,8 @@ class Crawler(object):
     def fetch(self, url):
         try:
             response = yield self.client.fetch(url)
-        except:
+        except Exception as e:
+            print 'Error while fetching "%s": %s' % (url, e)
             return
         page_info = Crawler.extract_features(url, BeautifulSoup(response.body, 'html.parser'))
         self.storage.url_fetched(page_info)
