@@ -20,6 +20,5 @@ To scale the storage either randomised sharding is to be implemented
 
 ## Not implemented
 
-* Tests.
 * Multiprocessing.
 * Benchmarking for optimal number of coroutines per process.

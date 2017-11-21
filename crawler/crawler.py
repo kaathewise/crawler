@@ -27,14 +27,14 @@ class Crawler(object):
         except Exception as e:
             print 'Error while fetching "%s": %s' % (url, e)
             return
-        page_info = Crawler.extract_features(url, BeautifulSoup(response.body, 'html.parser'))
+        page_info = Crawler.extract_features(url, response.body)
         self.storage.url_fetched(page_info)
 
     @staticmethod
     def normalize_url(url, original_url):
         if not url:
             return url
-        re.sub(r'#.*', '', url)
+        url = re.sub(r'#.*', '', url)
         original_parsed = urlparse(original_url)
         url_parsed = urlparse(url)
         if url_parsed.netloc == original_parsed.netloc:
@@ -44,7 +44,8 @@ class Crawler(object):
         return None
 
     @staticmethod
-    def extract_features(url, soup):
+    def extract_features(url, page):
+        soup = BeautifulSoup(page, 'html.parser')
         urls = filter(
             None,
             [Crawler.normalize_url(link.get('href'), url) for link in soup.find_all('a')]
@@ -59,7 +60,7 @@ class Crawler(object):
         )
         return {
             'url': url,
-            'title': soup.title.string,
+            'title': soup.title.string if soup.title else '',
             'links': urls,
             'img': local_img,
             'js': local_js}
