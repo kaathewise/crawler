@@ -4,8 +4,9 @@ import tornadis
 from tornado import gen
 
 class RedisStorage:
-    def __init__(self, host, port):
+    def __init__(self, host, port, queue_timeout=0.5):
         self.client = tornadis.Client(host=host, port=port, autoconnect=True)
+        self.queue_timeout = queue_timeout
 
     @gen.coroutine
     def url_fetched(self, page_info):
@@ -24,7 +25,7 @@ class RedisStorage:
     def next_url(self):
         url = yield self.client.call('SPOP', 'fetch_queue')
         if not url:
-            yield gen.sleep(0.5)
+            yield gen.sleep(self.queue_timeout)
             url = yield self.client.call('SPOP', 'fetch_queue')
         raise gen.Return(url)
 
