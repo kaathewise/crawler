@@ -10,8 +10,7 @@ class RedisStorage:
 
     @gen.coroutine
     def url_fetched(self, page_info):
-        for url in page_info['links']:
-            self.url_discovered(url)
+        yield gen.multi([self.url_discovered(url) for url in page_info['links']])
         yield self.client.call('SET', 'url:%s' % page_info['url'], json.dumps(page_info))
 
     @gen.coroutine

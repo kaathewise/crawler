@@ -68,16 +68,21 @@ class Crawler(object):
 parser = argparse.ArgumentParser(description='Simple web crawler')
 parser.add_argument('--url', dest='url', required=True, help='website to crawl')
 parser.add_argument('--redis', dest='redis', default='localhost:6379', help='redis instance')
+parser.add_argument('--timeout', dest='queue_timeout', type=float, default=0.5, help='empty queue timeout')
 parser.add_argument('--workers', dest='workers', type=int, default=10, help='number of workers')
 
 @gen.coroutine
 def main():
     args = parser.parse_args()
     r_host, r_port = args.redis.split(':')
-    storage = RedisStorage(r_host, int(r_port))
+    storage = RedisStorage(r_host, int(r_port), args.queue_timeout)
     yield storage.url_discovered(args.url)
     yield gen.multi([Crawler(storage).run() for i in range(args.workers)])
     print 'All website crawled.'
+    yield print_sitemap(storage)
+
+@gen.coroutine
+def print_sitemap(storage):
     page_infos = yield storage.get_all_page_info()
     print '%s pages found:' % len(page_infos)
     for info in page_infos:
